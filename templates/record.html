@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Message</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; background-color: #111; text-align: center; margin: 0; padding: 20px; color: white; }
+        h2 { margin-top: 10px; font-weight: normal; }
+        .name-highlight { color: #ff6b6b; font-weight: bold; }
+        video { width: 100%; max-width: 500px; border-radius: 15px; background: #222; margin-top: 15px; }
+        .controls { margin-top: 20px; }
+        
+        button {
+            padding: 15px 30px; font-size: 18px; border: none; border-radius: 50px;
+            cursor: pointer; width: 80%; max-width: 300px; margin: 10px; font-weight: bold;
+        }
+
+        #btnStart { background-color: #ff4757; color: white; }
+        #btnStop { background-color: #2ed573; color: white; display: none; }
+        #status { margin-top: 15px; color: #aaa; font-size: 14px; }
+        
+        .recording-pulse { border: 4px solid #ff4757; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 100% { box-shadow: 0 0 0 20px rgba(255, 71, 87, 0); } }
+    </style>
+</head>
+<body>
+
+    <h2>Hi, <span class="name-highlight">{{ guest_name }}</span>!</h2>
+    <p style="font-size: 0.9em; opacity: 0.8;">Leave a blessing for the couple.</p>
+    
+    <video id="preview" autoplay muted playsinline></video>
+    
+    <div class="controls">
+        <button id="btnStart" onclick="startRecording()">🔴 Start Recording</button>
+        <button id="btnStop" onclick="stopRecording()">⏹ Finish & Send</button>
+    </div>
+
+    <p id="status">Waiting for camera...</p>
+
+    <input type="hidden" id="guestName" value="{{ guest_name }}">
+
+    <script>
+        let mediaRecorder;
+        let recordedChunks = [];
+        const preview = document.getElementById('preview');
+        const btnStart = document.getElementById('btnStart');
+        const btnStop = document.getElementById('btnStop');
+        const status = document.getElementById('status');
+        const guestName = document.getElementById('guestName').value;
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: "user" } });
+                preview.srcObject = stream;
+                status.innerText = "Camera Ready.";
+                
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) recordedChunks.push(event.data);
+                };
+                mediaRecorder.onstop = uploadVideo;
+            } catch (err) {
+                status.innerText = "Please allow camera access!";
+            }
+        }
+
+        function startRecording() {
+            recordedChunks = [];
+            mediaRecorder.start();
+            btnStart.style.display = "none";
+            btnStop.style.display = "inline-block";
+            preview.classList.add("recording-pulse");
+            status.innerText = "Recording... Smile!";
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            preview.classList.remove("recording-pulse");
+            btnStop.style.display = "none";
+            status.innerText = "Uploading... ⏳";
+        }
+
+        function uploadVideo() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const formData = new FormData();
+            formData.append('video', blob);
+            formData.append('guest_name', guestName); // Send the name with the video!
+
+            fetch('/upload', { method: 'POST', body: formData })
+            .then(response => {
+                if (response.ok) {
+                    status.innerText = "✅ Saved! Redirecting...";
+                    setTimeout(() => window.location.href = "/", 2000); // Go back to start
+                } else {
+                    status.innerText = "❌ Error uploading.";
+                    btnStart.style.display = "inline-block";
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                status.innerText = "❌ Network Error.";
+            });
+        }
+
+        window.onload = initCamera;
+    </script>
+</body>
+</html>

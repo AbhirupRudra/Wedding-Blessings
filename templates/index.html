@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Video Guestbook</title>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background-color: #fdf2f8; 
+            text-align: center; 
+            padding: 40px 20px; 
+            color: #444;
+        }
+        .container { 
+            background: white; 
+            max-width: 450px; 
+            margin: 0 auto; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-top: 5px solid #d63384;
+        }
+        h1 { color: #d63384; margin-bottom: 10px; font-size: 28px; }
+        h2 { font-size: 18px; color: #666; font-weight: normal; margin-bottom: 30px; }
+        p { font-size: 14px; color: #888; margin-bottom: 20px; }
+        input { 
+            width: 80%; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            background: #fafafa;
+        }
+        button { 
+            background-color: #d63384; 
+            color: white; 
+            padding: 15px 40px; 
+            border: none; 
+            border-radius: 50px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #b02a6b; }
+        .footer { margin-top: 30px; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Video Guestbook 🎥</h1>
+        <h2>Welcome to the Wedding Celebration!</h2>
+        
+        <p>We are so happy you are here. Please enter your name below to record a short video message for the couple.</p>
+        
+        <form action="/record" method="GET">
+            <input type="text" name="name" placeholder="Enter Your Name Here" required autocomplete="off">
+            <button type="submit">Start Recording</button>
+        </form>
+
+        <div class="footer">
+            © 2025 Official Wedding Guestbook Application.<br>
+            Hosted privately for event guests only.
+        </div>
+    </div>
+</body>
+</html>
